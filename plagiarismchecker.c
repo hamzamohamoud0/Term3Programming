@@ -35,5 +35,31 @@ char *read_file(const char *filename) {
    return buffer;
 }
 
-
+int tokenize_file(const char *test_file, char tokens[][100]) {
+  char *file_contents = read_file(test_file);
+  if (!file_contents) {
+      return -1;
+  }
+  char *saveptr = NULL;
+  char *token = strtok_r(file_contents, " \n\t", &saveptr);
+  int num_tokens = 0;
+  while (token && num_tokens < 10000) {
+      // Remove punctuation
+      int length = strlen(token);
+      for (int i = length - 1; i >= 0; --i) {
+          if (ispunct((unsigned char)token[i])) {
+              memmove(&token[i], &token[i + 1], length - i);
+          }
+      }
+      // This allows the words to Convert to lower case
+      for(int i = 0; token[i]; i++){
+          token[i] = tolower(token[i]);
+      }
+      strncpy(tokens[num_tokens], token, 100);
+      token = strtok_r(NULL, " \n\t", &saveptr);
+      num_tokens++;
+  }
+  free(file_contents);
+  return num_tokens;
+}
 
