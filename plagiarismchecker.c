@@ -124,3 +124,57 @@ void calculate_phrase_frequency(char tokens1[][100], int num_tokens1, char token
        }
    }
 }
+void word_frequency_in_file(const char *word, char tokens[][MAX_TOKEN_LENGTH], int num_tokens) {
+    int count = 0;
+    for (int i = 0; i < num_tokens; ++i) {
+        if (strcmp(word, tokens[i]) == 0) {
+            ++count;
+        }
+    }
+    printf("%s: %d\n", word, count);
+}
+    void calculate_word_frequency(char tokens[][MAX_TOKEN_LENGTH], int num_tokens, struct word_frequency word_frequencies[]) {
+    int num_words = 0;
+
+    for (int i = 0; i < num_tokens; i++) {
+        int found = -1;
+        for (int k = 0; k < num_words; k++) {
+            if (strcmp(word_frequencies[k].word, tokens[i]) == 0) {
+                found = k;
+                break;
+            }
+        }
+
+        if (found != -1) {
+            word_frequencies[found].frequency += 1;
+        } else {
+            strncpy(word_frequencies[num_words].word, tokens[i], MAX_TOKEN_LENGTH);
+            word_frequencies[num_words].frequency = 1;
+            num_words++;
+
+    }
+    }
+    // Sort the words based on their frequency in descending order
+    qsort(word_frequencies, num_words, sizeof(struct word_frequency), compare_word_frequency);
+}
+
+
+void display_word_frequency(char tokens1[][MAX_TOKEN_LENGTH], int num_tokens1, char tokens2[][MAX_TOKEN_LENGTH], int num_tokens2) {
+  struct word_frequency word_frequencies1[10000];
+  struct word_frequency word_frequencies2[10000];
+   calculate_word_frequency(tokens1, num_tokens1, word_frequencies1);
+  calculate_word_frequency(tokens2, num_tokens2, word_frequencies2);
+  printf("%-20s %20s %-20s %20s\n", "Word", "Frequency (File 1)", "Word", "Frequency (File 2)");
+  printf("%-20s %20s %-20s %20s\n", "--------------------", "--------------------", "--------------------", "--------------------");
+   int max_tokens = num_tokens1 > num_tokens2 ? num_tokens1 : num_tokens2;
+  for (int i = 0; i < max_tokens; i++) {
+      char *word1 = i < num_tokens1 ? word_frequencies1[i].word : "";
+      int freq1 = i < num_tokens1 ? word_frequencies1[i].frequency : 0;
+      char *word2 = i < num_tokens2 ? word_frequencies2[i].word : "";
+      int freq2 = i < num_tokens2 ? word_frequencies2[i].frequency : 0;
+      // Only print if both frequencies are not zero
+      if (freq1 > 0 && freq2 > 0) {
+          printf("%-20s %20d %-20s %20d\n", word1, freq1, word2, freq2);
+      }
+  }
+}
