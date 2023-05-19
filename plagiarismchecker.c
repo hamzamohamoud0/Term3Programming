@@ -221,3 +221,45 @@ void print_matching_phrases(char tokens1[][100], int num_tokens1, char tokens2[]
     }
   }
 }
+
+int main() {
+  char test_file1[100], test_file2[100];
+  int threshold;
+  printf("Enter the first filename to compare: ");
+  scanf("%s", test_file1);
+  printf("Enter the second filename to compare: ");
+  scanf("%s", test_file2);
+  printf("Enter the threshold for phrase matching: ");
+  scanf("%d", &threshold);
+
+  char tokens1[10000][MAX_TOKEN_LENGTH];
+  char tokens2[10000][MAX_TOKEN_LENGTH];
+  int num_tokens1 = tokenize_file(test_file1, tokens1);
+  int num_tokens2 = tokenize_file(test_file2, tokens2);
+
+  printf("Word Frequencies in %s and %s:\n", test_file1, test_file2);
+  display_word_frequency(tokens1, num_tokens1, tokens2, num_tokens2);
+
+  char word[100];
+  printf("Enter a word to find its frequency: ");
+  scanf("%s", word);
+  printf("\nFrequency in %s:\n", test_file1);
+  word_frequency_in_file(word, tokens1, num_tokens1);
+  printf("\nFrequency in %s:\n", test_file2);
+  word_frequency_in_file(word, tokens2, num_tokens2);
+
+  float similarity = compare_files(test_file1, test_file2);
+  if (similarity == -1.0f) {
+    printf("Error: could not open file(s).\n");
+  } else {
+    printf("Similarity between %s and %s: %.2f%%\n", test_file1, test_file2, similarity);
+  }
+
+  int percentage = calculate_phrase_match_percentage(test_file1, test_file2, threshold);
+  printf("Phrase Match Percentage: %d%%\n", percentage);
+
+  printf("Matching Phrases (threshold = %d):\n", threshold);
+  print_matching_phrases(tokens1, num_tokens1, tokens2, num_tokens2, threshold);
+
+  return 0;
+}
