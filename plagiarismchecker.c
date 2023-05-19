@@ -63,3 +63,26 @@ int tokenize_file(const char *test_file, char tokens[][100]) {
   return num_tokens;
 }
 
+float compare_files(const char *test_file1, const char *test_file2) {
+    char tokens1[10000][100];
+    char tokens2[10000][100];
+    int num_tokens1 = tokenize_file(test_file1, tokens1);
+    int num_tokens2 = tokenize_file(test_file2, tokens2);
+
+    if (num_tokens1 == -1 || num_tokens2 == -1) {
+        return -1.0f;
+    }
+
+    int count = 0;
+    for (int i = 0; i < num_tokens1; ++i) {
+        for (int j = 0; j < num_tokens2; ++j) {
+            if (strcmp(tokens1[i], tokens2[j]) == 0) {
+                ++count;
+                break;
+            }
+        }
+    }
+
+    float similarity = ((float)count / (float)(num_tokens1 + num_tokens2 - count)) * 100.0f;
+    return similarity;
+}
