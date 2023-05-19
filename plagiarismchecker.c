@@ -178,3 +178,46 @@ void display_word_frequency(char tokens1[][MAX_TOKEN_LENGTH], int num_tokens1, c
       }
   }
 }
+
+int calculate_phrase_match_percentage(const char *file1, const char *file2, int threshold) {
+    char tokens1[10000][100];
+    char tokens2[10000][100];
+    int num_tokens1 = tokenize_file(file1, tokens1);
+    int num_tokens2 = tokenize_file(file2, tokens2);
+    
+    int matched_words = 0;
+    for (int i = 0; i < num_tokens1; i++) {
+        for (int j = 0; j < num_tokens2; j++) {
+            int k = 0;
+            while (i+k < num_tokens1 && j+k < num_tokens2 && strcmp(tokens1[i+k], tokens2[j+k]) == 0)
+                k++;
+                
+            if (k >= threshold) {
+                matched_words += k;
+                i += k - 1;
+                break;
+            }
+        }
+    }
+    
+    return (int)(((float)matched_words / (float)num_tokens1) * 100.0f);
+}
+void print_matching_phrases(char tokens1[][100], int num_tokens1, char tokens2[][100], int num_tokens2, int threshold) {
+  for (int i = 0; i < num_tokens1; i++) {
+    for (int j = 0; j < num_tokens2; j++) {
+      int k = 0;
+      while (i+k < num_tokens1 && j+k < num_tokens2 && strcmp(tokens1[i+k], tokens2[j+k]) == 0)
+          k++;
+              
+      if (k >= threshold) {
+        printf("Matching phrase: ");
+        for (int l = 0; l < k; l++) {
+          printf("%s ", tokens1[i+l]);
+        }
+        printf("\n");
+        i += k - 1;
+        break;
+      }
+    }
+  }
+}
