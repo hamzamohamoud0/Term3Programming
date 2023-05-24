@@ -16,7 +16,7 @@ struct word_frequency {
 int compare_word_frequency(const void* a, const void* b) {
     struct word_frequency *wf1 = (struct word_frequency*) a;
     struct word_frequency *wf2 = (struct word_frequency*) b;
-    return wf2->frequency - wf1->frequency; // Changed order for descending sort
+    return wf2->frequency - wf1->frequency; // make sure it is order for descending sort
 }
 
 char *read_file(const char *filename) {
@@ -49,9 +49,9 @@ int tokenize_file(const char *test_file, char tokens[][MAX_TOKEN_LENGTH]) {
     char *saveptr = NULL;
     char *token = strtok_r(file_contents, " \n\t", &saveptr);
     int num_tokens = 0;
-    int inside_quotes = 0; // Flag to track if we're inside quotes
+    int inside_quotes = 0; 
     while (token && num_tokens < 10000) {
-        // Check if this token contains a quote
+        
         if (strchr(token, '\"')) {
             inside_quotes = !inside_quotes;
         }
@@ -107,10 +107,10 @@ void calculate_phrase_frequency(char tokens1[][MAX_TOKEN_LENGTH], int num_tokens
     int num_phrases = 0;
     phrase[0] = '\0';
 for (int i = 0; i < num_tokens1; i++) {
-    int match = 0; // Add this line to keep track if there was a match
+    int match = 0;
     for (int j = 0; j < num_tokens2; j++) {
         if (strncmp(tokens1[i], tokens2[j], 100) == 0) {
-            match = 1; // If there was a match, set the flag to 1
+            match = 1; 
             num_consecutive_words++;
             if (num_consecutive_words == 1) {
                 strncpy(phrase, tokens1[i], 100);
@@ -159,7 +159,7 @@ void calculate_word_frequency(char tokens[][MAX_TOKEN_LENGTH], int num_tokens, s
         }
     }
 
-    // Sort the word frequencies based on frequency in descending order
+
     qsort(word_frequencies, num_words, sizeof(struct word_frequency), compare_word_frequency);
 }
 
@@ -240,64 +240,84 @@ void print_matching_phrases(char tokens1[][MAX_TOKEN_LENGTH], int num_tokens1, c
 void word_frequency_in_file(const char *word, char tokens[][MAX_TOKEN_LENGTH], int num_tokens) {
     int frequency = 0;
 
-    // Iterate over the tokens and count the frequency of the given word
+    
     for (int i = 0; i < num_tokens; i++) {
         if (strcmp(tokens[i], word) == 0) {
             frequency++;
         }
     }
 
-    // Display the word frequency
+    
     printf("Frequency of '%s': %d\n", word, frequency);
 }
+int compare_phrases(const void* a, const void* b) {
+    return strlen((char*)b) - strlen((char*)a);
+}
+
+void print_longest_matching_phrases(char phrases[][MAX_TOKEN_LENGTH], int phrase_frequency[], int max_phrases) {
+   
+    qsort(phrases, max_phrases, sizeof(phrases[0]), compare_phrases);
+  
+  
+    for (int i = 0; i < max_phrases; ++i) {
+        
+        if (phrase_frequency[i] > 0) {
+            printf("Phrase: %s, Frequency: %d\n", phrases[i], phrase_frequency[i]);
+        }
+    }
+}
+
 
 int main() {
-    char test_file1[100], test_file2[100];
-    int threshold;
-    printf("Enter the first filename to compare: ");
-    scanf("%s", test_file1);
-    printf("Enter the second filename to compare: ");
-    scanf("%s", test_file2);
-    printf("Enter the threshold for phrase matching: ");
-    scanf("%d", &threshold);
+   char test_file1[100], test_file2[100];
+   int threshold;
+   printf("Enter the first filename to compare: ");
+   scanf("%s", test_file1);
+   printf("Enter the second filename to compare: ");
+   scanf("%s", test_file2);
+   printf("Enter the threshold for phrase matching: ");
+   scanf("%d", &threshold);
 
-    char tokens1[10000][MAX_TOKEN_LENGTH];
-    char tokens2[10000][MAX_TOKEN_LENGTH];
-    int num_tokens1 = tokenize_file(test_file1, tokens1);
-    int num_tokens2 = tokenize_file(test_file2, tokens2);
+   char tokens1[10000][MAX_TOKEN_LENGTH];
+   char tokens2[10000][MAX_TOKEN_LENGTH];
+   int num_tokens1 = tokenize_file(test_file1, tokens1);
+   int num_tokens2 = tokenize_file(test_file2, tokens2);
 
-    printf("Word Frequencies in %s and %s:\n", test_file1, test_file2);
-    struct word_frequency word_frequencies1[10000];
-    struct word_frequency word_frequencies2[10000];
-    calculate_word_frequency(tokens1, num_tokens1, word_frequencies1);
-    calculate_word_frequency(tokens2, num_tokens2, word_frequencies2);
-    display_word_frequency(word_frequencies1, num_tokens1, word_frequencies2, num_tokens2);
+   printf("Word Frequencies in %s and %s:\n", test_file1, test_file2);
+   struct word_frequency word_frequencies1[10000];
+   struct word_frequency word_frequencies2[10000];
+   calculate_word_frequency(tokens1, num_tokens1, word_frequencies1);
+   calculate_word_frequency(tokens2, num_tokens2, word_frequencies2);
+   display_word_frequency(word_frequencies1, num_tokens1, word_frequencies2, num_tokens2);
 
-    char word[100];
-    printf("Enter a word to find its frequency: ");
-    scanf("%s", word);
-    printf("\nFrequency in %s:\n", test_file1);
-    word_frequency_in_file(word, tokens1, num_tokens1);
-    printf("\nFrequency in %s:\n", test_file2);
-    word_frequency_in_file(word, tokens2, num_tokens2);
+   char word[100];
+   printf("Enter a word to find its frequency: ");
+   scanf("%s", word);
+   printf("\nFrequency in %s:\n", test_file1);
+   word_frequency_in_file(word, tokens1, num_tokens1);
+   printf("\nFrequency in %s:\n", test_file2);
+   word_frequency_in_file(word, tokens2, num_tokens2);
 
-    float similarity = compare_files(test_file1, test_file2);
-    if (similarity == -1.0f) {
-        printf("Error: could not open file(s).\n");
-    } else {
-        printf("Similarity between %s and %s: %.2f%%\n", test_file1, test_file2, similarity);
-    }
+   float similarity = compare_files(test_file1, test_file2);
+   if (similarity == -1.0f) {
+       printf("Error: could not open file(s).\n");
+   } else {
+       printf("Similarity between %s and %s: %.2f%%\n", test_file1, test_file2, similarity);
+   }
 
-    int percentage = calculate_phrase_match_percentage(test_file1, test_file2, threshold);
-    printf("Phrase Match Percentage: %d%%\n", percentage);
+   int percentage = calculate_phrase_match_percentage(test_file1, test_file2, threshold);
+   printf("Phrase Match Percentage: %d%%\n", percentage);
 
-    printf("Matching Phrases (threshold = %d):\n", threshold);
-    print_matching_phrases(tokens1, num_tokens1, tokens2, num_tokens2, threshold);
+   printf("Matching Phrases (threshold = %d):\n", threshold);
+   print_matching_phrases(tokens1, num_tokens1, tokens2, num_tokens2, threshold);
 
-    int max_phrases = 10; // Maximum phrases to be considered
-    char phrases[max_phrases][MAX_TOKEN_LENGTH]; // Array to hold the matching phrases
-    int phrase_frequency[max_phrases]; // Array to hold the frequency of each phrase
-    calculate_phrase_frequency(tokens1, num_tokens1, tokens2, num_tokens2, phrases, max_phrases, threshold, phrase_frequency);
+   int max_phrases = 10; 
+   char phrases[max_phrases][MAX_TOKEN_LENGTH]; 
+   int phrase_frequency[max_phrases]; 
+   calculate_phrase_frequency(tokens1, num_tokens1, tokens2, num_tokens2, phrases, max_phrases, threshold, phrase_frequency);
 
-    return 0;
+   printf("\nLongest Matching Phrases:\n");
+   print_longest_matching_phrases(phrases, phrase_frequency, max_phrases);
+
+   return 0;
 }
